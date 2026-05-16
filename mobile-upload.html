@@ -1,0 +1,249 @@
+# mobile-upload.html
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        رفع كشف الدرجات
+    </title>
+
+    <style>
+
+        body {
+
+            font-family: Tahoma;
+
+            background: #f1f5f9;
+
+            padding: 20px;
+
+            text-align: center;
+        }
+
+        .box {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 25px;
+
+            max-width: 420px;
+
+            margin: auto;
+
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+
+            color: #1e3a8a;
+
+            margin-bottom: 20px;
+        }
+
+        input {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding: 14px;
+
+            border-radius: 14px;
+
+            border: 1px solid #cbd5e1;
+
+            margin-bottom: 15px;
+
+            font-size: 16px;
+        }
+
+        button {
+
+            width: 100%;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 14px;
+
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
+
+            color: white;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #status {
+
+            margin-top: 18px;
+
+            font-size: 18px;
+
+            font-weight: bold;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="box">
+
+        <h1>
+            📷 رفع كشف الدرجات
+        </h1>
+
+        <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+            capture="environment">
+
+        <button id="uploadBtn">
+            🚀 رفع الصورة
+        </button>
+
+        <div id="status">
+            جاهز
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+
+        const SUPABASE_URL = "ضع رابط مشروعك هنا";
+
+        const SUPABASE_KEY = "ضع المفتاح هنا";
+
+        const supabaseClient =
+            supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
+            );
+
+        const uploadBtn =
+            document.getElementById(
+                "uploadBtn"
+            );
+
+        const imageInput =
+            document.getElementById(
+                "imageInput"
+            );
+
+        const statusDiv =
+            document.getElementById(
+                "status"
+            );
+
+        uploadBtn.addEventListener(
+            "click",
+
+            async () => {
+
+                const file =
+                    imageInput.files[0];
+
+                if (!file) {
+
+                    alert("اختر صورة");
+
+                    return;
+                }
+
+                statusDiv.innerHTML =
+                    "⏳ جاري رفع الصورة...";
+
+                const fileName =
+                    Date.now() + ".jpg";
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                .storage
+                .from("uploads")
+                .upload(
+                    fileName,
+                    file
+                );
+
+                if (error) {
+
+                    console.log(error);
+
+                    statusDiv.innerHTML =
+                        "❌ فشل رفع الصورة";
+
+                    return;
+                }
+
+                statusDiv.innerHTML =
+                    "✅ تم رفع الصورة بنجاح";
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
+```
+
+# الخطوة التالية
+
+1. احفظ الملف باسم:
+
+```plaintext
+mobile-upload.html
+```
+
+2. ارفعه على:
+
+* GitHub Pages
+  أو
+* Netlify
+
+3. ضع رابط الصفحة داخل:
+
+```javascript
+const mobileUploadUrl = "...";
+```
+
+داخل popup.js
+
+4. جرّب مسح QR من الجوال.
+
+5. صوّر كشف وارفعه.
+
+إذا ظهرت:
+
+```plaintext
+✅ تم رفع الصورة بنجاح
+```
+
+فأنت الآن فعليًا ترفع من الجوال إلى السحابة بنجاح 🔥
