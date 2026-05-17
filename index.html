@@ -1,6 +1,3 @@
-# mobile-upload.html
-
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -135,16 +132,34 @@
 
     <script>
 
-        const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
+        // رابط ومفتاح Supabase
+        const SUPABASE_URL =
+            "https://kztwzelltnomrbsdmukt.supabase.co";
 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
+        const SUPABASE_KEY =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
 
+        // إنشاء عميل Supabase
         const supabaseClient =
             supabase.createClient(
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
 
+        // قراءة Session من الرابط
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const SESSION_ID =
+            params.get("session");
+
+        console.log(SESSION_ID);
+
+        alert(SESSION_ID);
+
+        // العناصر
         const uploadBtn =
             document.getElementById(
                 "uploadBtn"
@@ -160,6 +175,7 @@
                 "status"
             );
 
+        // رفع الصورة
         uploadBtn.addEventListener(
             "click",
 
@@ -175,12 +191,25 @@
                     return;
                 }
 
+                if (!SESSION_ID) {
+
+                    alert(
+                        "Session غير موجودة"
+                    );
+
+                    return;
+                }
+
                 statusDiv.innerHTML =
                     "⏳ جاري رفع الصورة...";
 
+                // اسم الملف داخل Session
                 const fileName =
-                    Date.now() + ".jpg";
+`${SESSION_ID}/${Date.now()}.jpg`;
 
+                console.log(fileName);
+
+                // رفع الصورة
                 const {
                     data,
                     error
@@ -204,6 +233,8 @@
 
                 statusDiv.innerHTML =
                     "✅ تم رفع الصورة بنجاح";
+
+                console.log(data);
             }
         );
 
@@ -212,38 +243,3 @@
 </body>
 
 </html>
-```
-
-# الخطوة التالية
-
-1. احفظ الملف باسم:
-
-```plaintext
-mobile-upload.html
-```
-
-2. ارفعه على:
-
-* GitHub Pages
-  أو
-* Netlify
-
-3. ضع رابط الصفحة داخل:
-
-```javascript
-const mobileUploadUrl = "...";
-```
-
-داخل popup.js
-
-4. جرّب مسح QR من الجوال.
-
-5. صوّر كشف وارفعه.
-
-إذا ظهرت:
-
-```plaintext
-✅ تم رفع الصورة بنجاح
-```
-
-فأنت الآن فعليًا ترفع من الجوال إلى السحابة بنجاح 🔥
