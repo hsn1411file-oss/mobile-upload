@@ -213,7 +213,7 @@ const cropBtn =
 let img =
     new Image();
 
-let cropX = 50;
+let cropX = 0;
 
 const cropWidth = 180;
 
@@ -271,6 +271,10 @@ imageInput.addEventListener(
 
                     canvas.height =
                         img.height;
+                    cropX =
+    (canvas.width / 2)
+    -
+    (cropWidth / 2);
 
                     drawCropBar();
                 };
@@ -286,18 +290,7 @@ imageInput.addEventListener(
 );
 
 // تحريك العمود
-canvas.addEventListener(
-    "pointermove",
 
-    (e) => {
-
-        cropX =
-            e.offsetX -
-            (cropWidth / 2);
-
-        drawCropBar();
-    }
-);
 
 // قص العمود
 cropBtn.addEventListener(
