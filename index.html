@@ -1,159 +1,201 @@
-# mobile-upload.html
-
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-    <title>
-        رفع كشف الدرجات
-    </title>
+<title>
+رفع كشف الدرجات
+</title>
 
-    <style>
+<style>
 
-        body {
+body {
 
-            font-family: Tahoma;
+    font-family: Tahoma;
 
-            background: #f1f5f9;
+    background: #f1f5f9;
 
-            padding: 20px;
+    padding: 20px;
 
-            text-align: center;
-        }
+    text-align: center;
+}
 
-        .box {
+.box {
 
-            background: white;
+    background: white;
 
-            border-radius: 20px;
+    border-radius: 20px;
 
-            padding: 25px;
+    padding: 25px;
 
-            max-width: 420px;
+    max-width: 420px;
 
-            margin: auto;
+    margin: auto;
 
-            box-shadow:
-                0 4px 15px rgba(0,0,0,0.08);
-        }
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
 
-        h1 {
+    overflow:auto;
 
-            color: #1e3a8a;
+    max-height:95vh;
+}
 
-            margin-bottom: 20px;
-        }
+h1 {
 
-        input {
+    color: #1e3a8a;
 
-            width: 100%;
+    margin-bottom: 20px;
+}
 
-            box-sizing: border-box;
+input {
 
-            padding: 14px;
+    width: 100%;
 
-            border-radius: 14px;
+    box-sizing: border-box;
 
-            border: 1px solid #cbd5e1;
+    padding: 14px;
 
-            margin-bottom: 15px;
+    border-radius: 14px;
 
-            font-size: 16px;
-        }
+    border: 1px solid #cbd5e1;
 
-        button {
+    margin-bottom: 15px;
 
-            width: 100%;
+    font-size: 16px;
+}
 
-            padding: 15px;
+button {
 
-            border: none;
+    width: 100%;
 
-            border-radius: 14px;
+    padding: 15px;
 
-            background: linear-gradient(
-                135deg,
-                #2563eb,
-                #1d4ed8
-            );
+    border: none;
 
-            color: white;
+    border-radius: 14px;
 
-            font-size: 18px;
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #1d4ed8
+    );
 
-            font-weight: bold;
+    color: white;
 
-            cursor: pointer;
-        }
+    font-size: 18px;
 
-        #status {
+    font-weight: bold;
 
-            margin-top: 18px;
+    cursor: pointer;
 
-            font-size: 18px;
+    margin-top:10px;
+}
 
-            font-weight: bold;
-        }
+#status {
 
-    </style>
+    margin-top: 18px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+#cropCanvas {
+
+    width:100%;
+
+    height:auto;
+
+    display:block;
+
+    border:2px solid #999;
+
+    margin-top:10px;
+
+    touch-action:none;
+
+    border-radius:10px;
+}
+
+</style>
 
 </head>
 
 <body>
 
-    <div class="box">
+<div class="box">
 
-        <h1>
-            📷 رفع كشف الدرجات
-        </h1>
+<h1>
+📷 رفع كشف الدرجات
+</h1>
 
-        <input
-            type="file"
-            id="imageInput"
-            accept="image/*"
-            capture="environment">
-            <canvas
-            id="cropCanvas"
-            style="
-            max-width:100%;
-            border:2px solid #999;
-            margin-top:10px;
-            touch-action:none;
-            "
-            ></canvas>
-            
-            <button
-            id="cropBtn"
-            style="
-            margin-top:10px;
-            padding:10px;
-            font-size:18px;
-            "
-            >
-            قص العمود
-            </button>    
+<input
+type="file"
+id="imageInput"
+accept="image/*"
+capture="environment">
 
-        <button id="uploadBtn">
-            🚀 رفع الصورة
-        </button>
+<canvas
+id="cropCanvas"
+></canvas>
 
-        <div id="status">
-            جاهز
-        </div>
+<button id="cropBtn">
+قص العمود
+</button>
 
-    </div>
+<button id="uploadBtn">
+🚀 رفع الصورة
+</button>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="status">
+جاهز
+</div>
 
-    <script>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
+
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+// Session
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const SESSION_ID =
+    params.get("session");
+
+const uploadBtn =
+    document.getElementById(
+        "uploadBtn"
+    );
+
+const imageInput =
+    document.getElementById(
+        "imageInput"
+    );
+
+const statusDiv =
+    document.getElementById(
+        "status"
+    );
 
 const canvas =
     document.getElementById(
@@ -171,110 +213,174 @@ const cropBtn =
 let img =
     new Image();
 
-let startX = 0;
-let startY = 0;
+let cropX = 50;
 
-let endX = 0;
-let endY = 0;
+const cropWidth = 180;
 
-let isDrawing = false;
+// رسم الشريط
+function drawCropBar() {
 
-        const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
+    ctx.drawImage(
+        img,
+        0,
+        0
+    );
 
-        const supabaseClient =
-            supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
+    ctx.strokeStyle =
+        "red";
 
-            // قراءة Session من الرابط
-        const params =
-            new URLSearchParams(
-                window.location.search
-            );
+    ctx.lineWidth = 4;
 
-        const SESSION_ID =
-            params.get("session");
-            
+    ctx.strokeRect(
+        cropX,
+        0,
+        cropWidth,
+        canvas.height
+    );
+}
 
-        console.log(SESSION_ID);
+// رفع الصورة
+imageInput.addEventListener(
+    "change",
 
+    () => {
 
-        const uploadBtn =
-            document.getElementById(
-                "uploadBtn"
-            );
+        const file =
+            imageInput.files[0];
 
-        const imageInput =
-            document.getElementById(
-                "imageInput"
-            );
+        if (!file)
+            return;
 
-        const statusDiv =
-            document.getElementById(
-                "status"
-            );
+        const reader =
+            new FileReader();
 
-        uploadBtn.addEventListener(
-            "click",
+        reader.onload =
+            (e) => {
 
-            async () => {
+                img.onload = () => {
 
-                const file =
-                    imageInput.files[0];
-                    const reader =
-    new FileReader();
+                    canvas.width =
+                        img.width;
 
-reader.onload =
-    (e) => {
+                    canvas.height =
+                        img.height;
 
-        img.onload = () => {
+                    drawCropBar();
+                };
 
-            canvas.width =
-                img.width;
+                img.src =
+                    e.target.result;
+            };
 
-            canvas.height =
-                img.height;
-
-            ctx.drawImage(
-                img,
-                0,
-                0
-            );
-        };
-
-        img.src =
-            e.target.result;
-    };
-
-reader.readAsDataURL(
-    file
+        reader.readAsDataURL(
+            file
+        );
+    }
 );
 
-                if (!file) {
+// تحريك العمود
+canvas.addEventListener(
+    "pointermove",
 
-                    alert("اختر صورة");
+    (e) => {
 
-                    return;
-                }
+        cropX =
+            e.offsetX -
+            (cropWidth / 2);
 
-                statusDiv.innerHTML =
-                    "⏳ جاري رفع الصورة...";
+        drawCropBar();
+    }
+);
+
+// قص العمود
+cropBtn.addEventListener(
+    "click",
+
+    () => {
+
+        const tempCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+        tempCanvas.width =
+            cropWidth;
+
+        tempCanvas.height =
+            canvas.height;
+
+        const tempCtx =
+            tempCanvas.getContext(
+                "2d"
+            );
+
+        tempCtx.drawImage(
+            canvas,
+            cropX,
+            0,
+            cropWidth,
+            canvas.height,
+            0,
+            0,
+            cropWidth,
+            canvas.height
+        );
+
+        canvas.width =
+            cropWidth;
+
+        canvas.height =
+            tempCanvas.height;
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        ctx.drawImage(
+            tempCanvas,
+            0,
+            0
+        );
+
+        img.src =
+            tempCanvas.toDataURL();
+    }
+);
+
+// رفع الصورة المقصوصة
+uploadBtn.addEventListener(
+    "click",
+
+    async () => {
+
+        statusDiv.innerHTML =
+            "⏳ جاري رفع الصورة...";
+
+        canvas.toBlob(
+
+            async (blob) => {
 
                 const fileName =
-                    `${SESSION_ID}/${Date.now()}.jpg`;
+`${SESSION_ID}/${Date.now()}.jpg`;
 
                 const {
-                    data,
                     error
                 } = await supabaseClient
                 .storage
                 .from("uploads")
                 .upload(
                     fileName,
-                    file
+                    blob
                 );
 
                 if (error) {
@@ -289,140 +395,16 @@ reader.readAsDataURL(
 
                 statusDiv.innerHTML =
                     "✅ تم رفع الصورة بنجاح";
-            }
-        );
-    // بداية السحب
-// بداية السحب
-canvas.addEventListener(
-    "pointerdown",
+            },
 
-    (e) => {
-
-        isDrawing = true;
-
-        startX = e.offsetX;
-        startY = e.offsetY;
-    }
-);
-
-// أثناء السحب
-canvas.addEventListener(
-    "pointermove",
-
-    (e) => {
-
-        if (!isDrawing)
-            return;
-
-        endX = e.offsetX;
-        endY = e.offsetY;
-
-        ctx.clearRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
-
-        ctx.drawImage(
-            img,
-            0,
-            0
-        );
-
-        ctx.strokeStyle =
-            "red";
-
-        ctx.lineWidth = 3;
-
-        ctx.strokeRect(
-            startX,
-            startY,
-            endX - startX,
-            endY - startY
+            "image/jpeg",
+            0.95
         );
     }
 );
 
-// نهاية السحب
-canvas.addEventListener(
-    "pointerup",
-
-    () => {
-
-        isDrawing = false;
-    }
-);
-
-// قص الصورة
-cropBtn.addEventListener(
-    "click",
-
-    () => {
-
-        const width =
-            endX - startX;
-
-        const height =
-            endY - startY;
-
-        const tempCanvas =
-            document.createElement(
-                "canvas"
-            );
-
-        tempCanvas.width =
-            width;
-
-        tempCanvas.height =
-            height;
-
-        const tempCtx =
-            tempCanvas.getContext(
-                "2d"
-            );
-
-        tempCtx.drawImage(
-            canvas,
-            startX,
-            startY,
-            width,
-            height,
-            0,
-            0,
-            width,
-            height
-        );
-
-        canvas.width =
-    width;
-
-canvas.height =
-    height;
-
-ctx.clearRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-);
-
-ctx.drawImage(
-    tempCanvas,
-    0,
-    0
-);
-
-img.src =
-    tempCanvas.toDataURL();
-            
-    }
-);
-
-    </script>
+</script>
 
 </body>
 
 </html>
-```
-
