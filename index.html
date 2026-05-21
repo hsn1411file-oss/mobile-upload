@@ -1,3 +1,6 @@
+# mobile-upload.html
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -117,6 +120,26 @@
             id="imageInput"
             accept="image/*"
             capture="environment">
+            <canvas
+            id="cropCanvas"
+            style="
+            max-width:100%;
+            border:2px solid #999;
+            margin-top:10px;
+            touch-action:none;
+            "
+            ></canvas>
+            
+            <button
+            id="cropBtn"
+            style="
+            margin-top:10px;
+            padding:10px;
+            font-size:18px;
+            "
+            >
+            قص العمود
+            </button>    
 
         <button id="uploadBtn">
             🚀 رفع الصورة
@@ -132,21 +155,41 @@
 
     <script>
 
-        // رابط ومفتاح Supabase
-        const SUPABASE_URL =
-            "https://kztwzelltnomrbsdmukt.supabase.co";
+const canvas =
+    document.getElementById(
+        "cropCanvas"
+    );
 
-        const SUPABASE_KEY =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
+const ctx =
+    canvas.getContext("2d");
 
-        // إنشاء عميل Supabase
+const cropBtn =
+    document.getElementById(
+        "cropBtn"
+    );
+
+let img =
+    new Image();
+
+let startX = 0;
+let startY = 0;
+
+let endX = 0;
+let endY = 0;
+
+let isDrawing = false;
+
+        const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
+
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
+
         const supabaseClient =
             supabase.createClient(
                 SUPABASE_URL,
                 SUPABASE_KEY
             );
 
-        // قراءة Session من الرابط
+            // قراءة Session من الرابط
         const params =
             new URLSearchParams(
                 window.location.search
@@ -154,12 +197,11 @@
 
         const SESSION_ID =
             params.get("session");
+            
 
         console.log(SESSION_ID);
 
-        
 
-        // العناصر
         const uploadBtn =
             document.getElementById(
                 "uploadBtn"
@@ -175,7 +217,6 @@
                 "status"
             );
 
-        // رفع الصورة
         uploadBtn.addEventListener(
             "click",
 
@@ -183,6 +224,34 @@
 
                 const file =
                     imageInput.files[0];
+                    const reader =
+    new FileReader();
+
+reader.onload =
+    (e) => {
+
+        img.onload = () => {
+
+            canvas.width =
+                img.width;
+
+            canvas.height =
+                img.height;
+
+            ctx.drawImage(
+                img,
+                0,
+                0
+            );
+        };
+
+        img.src =
+            e.target.result;
+    };
+
+reader.readAsDataURL(
+    file
+);
 
                 if (!file) {
 
@@ -191,25 +260,12 @@
                     return;
                 }
 
-                if (!SESSION_ID) {
-
-                    alert(
-                        "Session غير موجودة"
-                    );
-
-                    return;
-                }
-
                 statusDiv.innerHTML =
                     "⏳ جاري رفع الصورة...";
 
-                // اسم الملف داخل Session
                 const fileName =
-`${SESSION_ID}/${Date.now()}.jpg`;
+                    `${SESSION_ID}/${Date.now()}.jpg`;
 
-                console.log(fileName);
-
-                // رفع الصورة
                 const {
                     data,
                     error
@@ -233,13 +289,139 @@
 
                 statusDiv.innerHTML =
                     "✅ تم رفع الصورة بنجاح";
-
-                console.log(data);
             }
         );
+    // بداية السحب
+canvas.addEventListener(
+    "mousedown",
+
+    (e) => {
+
+        isDrawing = true;
+
+        startX = e.offsetX;
+        startY = e.offsetY;
+    }
+);
+
+// أثناء السحب
+canvas.addEventListener(
+    "mousemove",
+
+    (e) => {
+
+        if (!isDrawing)
+            return;
+
+        endX = e.offsetX;
+        endY = e.offsetY;
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        ctx.drawImage(
+            img,
+            0,
+            0
+        );
+
+        ctx.strokeStyle =
+            "red";
+
+        ctx.lineWidth = 3;
+
+        ctx.strokeRect(
+            startX,
+            startY,
+            endX - startX,
+            endY - startY
+        );
+    }
+);
+
+// نهاية السحب
+canvas.addEventListener(
+    "mouseup",
+
+    () => {
+
+        isDrawing = false;
+    }
+);
+
+// قص الصورة
+cropBtn.addEventListener(
+    "click",
+
+    () => {
+
+        const width =
+            endX - startX;
+
+        const height =
+            endY - startY;
+
+        const tempCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+        tempCanvas.width =
+            width;
+
+        tempCanvas.height =
+            height;
+
+        const tempCtx =
+            tempCanvas.getContext(
+                "2d"
+            );
+
+        tempCtx.drawImage(
+            canvas,
+            startX,
+            startY,
+            width,
+            height,
+            0,
+            0,
+            width,
+            height
+        );
+
+        canvas.width =
+    width;
+
+canvas.height =
+    height;
+
+ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+);
+
+ctx.drawImage(
+    tempCanvas,
+    0,
+    0
+);
+
+img.src =
+    tempCanvas.toDataURL();
+            
+    }
+);
 
     </script>
 
 </body>
 
 </html>
+```
+
