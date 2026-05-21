@@ -72,8 +72,6 @@ input {
 
 button {
 
-    width: 100%;
-
     padding: 15px;
 
     border: none;
@@ -145,11 +143,33 @@ capture="environment">
 id="cropCanvas"
 ></canvas>
 
-<button id="cropBtn">
+<button
+id="cropBtn"
+style="width:100%;"
+>
 قص العمود
 </button>
 
-<button id="uploadBtn">
+<div style="
+display:flex;
+gap:10px;
+margin-top:10px;
+">
+
+<button id="widthPlus">
+➕ توسيع
+</button>
+
+<button id="widthMinus">
+➖ تصغير
+</button>
+
+</div>
+
+<button
+id="uploadBtn"
+style="width:100%;"
+>
 🚀 رفع الصورة
 </button>
 
@@ -209,6 +229,7 @@ const cropBtn =
     document.getElementById(
         "cropBtn"
     );
+
 const widthPlus =
     document.getElementById(
         "widthPlus"
@@ -218,6 +239,7 @@ const widthMinus =
     document.getElementById(
         "widthMinus"
     );
+
 let img =
     new Image();
 
@@ -254,7 +276,7 @@ function drawCropBar() {
     );
 }
 
-// رفع الصورة
+// اختيار الصورة
 imageInput.addEventListener(
     "change",
 
@@ -279,10 +301,11 @@ imageInput.addEventListener(
 
                     canvas.height =
                         img.height;
+
                     cropX =
-    (canvas.width / 2)
-    -
-    (cropWidth / 2);
+                        (canvas.width / 2)
+                        -
+                        (cropWidth / 2);
 
                     drawCropBar();
                 };
@@ -297,8 +320,42 @@ imageInput.addEventListener(
     }
 );
 
-// تحريك العمود
+// تكبير العرض
+widthPlus.addEventListener(
+    "click",
 
+    () => {
+
+        cropWidth += 20;
+
+        cropX =
+            (canvas.width / 2)
+            -
+            (cropWidth / 2);
+
+        drawCropBar();
+    }
+);
+
+// تصغير العرض
+widthMinus.addEventListener(
+    "click",
+
+    () => {
+
+        cropWidth -= 20;
+
+        if (cropWidth < 60)
+            cropWidth = 60;
+
+        cropX =
+            (canvas.width / 2)
+            -
+            (cropWidth / 2);
+
+        drawCropBar();
+    }
+);
 
 // قص العمود
 cropBtn.addEventListener(
@@ -310,21 +367,7 @@ cropBtn.addEventListener(
             document.createElement(
                 "canvas"
             );
-<div style="
-display:flex;
-gap:10px;
-margin-top:10px;
-">
 
-<button id="widthPlus">
-➕ توسيع
-</button>
-
-<button id="widthMinus">
-➖ تصغير
-</button>
-
-</div>
         tempCanvas.width =
             cropWidth;
 
@@ -372,7 +415,7 @@ margin-top:10px;
     }
 );
 
-// رفع الصورة المقصوصة
+// رفع الصورة
 uploadBtn.addEventListener(
     "click",
 
@@ -417,42 +460,7 @@ uploadBtn.addEventListener(
         );
     }
 );
-// تكبير العرض
-widthPlus.addEventListener(
-    "click",
 
-    () => {
-
-        cropWidth += 20;
-
-        cropX =
-            (canvas.width / 2)
-            -
-            (cropWidth / 2);
-
-        drawCropBar();
-    }
-);
-
-// تصغير العرض
-widthMinus.addEventListener(
-    "click",
-
-    () => {
-
-        cropWidth -= 20;
-
-        if (cropWidth < 60)
-            cropWidth = 60;
-
-        cropX =
-            (canvas.width / 2)
-            -
-            (cropWidth / 2);
-
-        drawCropBar();
-    }
-);
 </script>
 
 </body>
