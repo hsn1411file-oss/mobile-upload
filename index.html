@@ -292,8 +292,9 @@ reader.readAsDataURL(
             }
         );
     // بداية السحب
+// بداية السحب
 canvas.addEventListener(
-    "mousedown",
+    "pointerdown",
 
     (e) => {
 
@@ -306,7 +307,7 @@ canvas.addEventListener(
 
 // أثناء السحب
 canvas.addEventListener(
-    "mousemove",
+    "pointermove",
 
     (e) => {
 
@@ -345,7 +346,7 @@ canvas.addEventListener(
 
 // نهاية السحب
 canvas.addEventListener(
-    "mouseup",
+    "pointerup",
 
     () => {
 
