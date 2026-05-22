@@ -7,95 +7,118 @@
 <title>رفع كشف الدرجات</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Tahoma;
-    background: #0f172a;
-    color: white;
-    text-align: center;
+
+body{
+    margin:0;
+    font-family:Tahoma;
+    background:#0f172a;
+    color:white;
+    text-align:center;
 }
 
-.box {
-    padding: 12px;
+.box{
+    padding:12px;
 }
 
-h1 {
-    font-size: 22px;
-    margin: 10px 0;
+h1{
+    font-size:22px;
+    margin:10px 0;
 }
 
-.cameraBox {
-    position: relative;
-    width: 100%;
-    max-width: 430px;
-    margin: auto;
-    overflow: hidden;
-    border-radius: 18px;
-    border: 2px solid #334155;
-    background: black;
+.cameraBox{
+    position:relative;
+    width:100%;
+    max-width:430px;
+    margin:auto;
+    overflow:hidden;
+    border-radius:18px;
+    border:2px solid #334155;
+    background:black;
 }
 
-video {
-    width: 100%;
-    display: block;
+video{
+    width:100%;
+    display:block;
 }
 
-.frame {
-    position: absolute;
-    top: 7%;
-    bottom: 7%;
-    left: 50%;
-    width: 80px;
-    transform: translateX(-50%);
-    border: 4px solid red;
-    border-radius: 12px;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.35);
-    pointer-events: none;
+.frame{
+    position:absolute;
+    top:7%;
+    bottom:7%;
+    left:50%;
+    width:150px;
+    transform:translateX(-50%);
+    border:4px solid red;
+    border-radius:12px;
+    box-shadow:0 0 0 9999px rgba(0,0,0,0.35);
+    pointer-events:none;
 }
 
-button {
-    width: 100%;
-    max-width: 430px;
-    padding: 15px;
-    margin-top: 12px;
-    border: none;
-    border-radius: 14px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
+.controls{
+    display:flex;
+    gap:10px;
+    max-width:430px;
+    margin:12px auto 0;
 }
 
-#captureBtn {
-    background: #16a34a;
-    color: white;
+.controls button{
+    flex:1;
 }
 
-#useBtn {
-    background: #2563eb;
-    color: white;
-    display: none;
+button{
+    width:100%;
+    max-width:430px;
+    padding:15px;
+    margin-top:12px;
+    border:none;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-#retakeBtn {
-    background: #f59e0b;
-    color: white;
-    display: none;
+#plusBtn{
+    background:#2563eb;
+    color:white;
 }
 
-#status {
-    margin-top: 14px;
-    font-size: 18px;
-    font-weight: bold;
+#minusBtn{
+    background:#dc2626;
+    color:white;
 }
 
-#previewCanvas {
-    display: none;
-    width: 100%;
-    max-width: 430px;
-    margin-top: 12px;
-    border-radius: 18px;
-    border: 2px solid #334155;
+#captureBtn{
+    background:#16a34a;
+    color:white;
 }
+
+#useBtn{
+    background:#2563eb;
+    color:white;
+    display:none;
+}
+
+#retakeBtn{
+    background:#f59e0b;
+    color:white;
+    display:none;
+}
+
+#status{
+    margin-top:14px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+#previewCanvas{
+    display:none;
+    width:100%;
+    max-width:430px;
+    margin-top:12px;
+    border-radius:18px;
+    border:2px solid #334155;
+}
+
 </style>
 </head>
 
@@ -112,249 +135,329 @@ button {
 
 <canvas id="previewCanvas"></canvas>
 
+<div class="controls">
+    <button id="minusBtn">➖</button>
+    <button id="plusBtn">➕</button>
+</div>
+
 <button id="captureBtn">📷 تصوير</button>
 <button id="useBtn">✅ استخدام الصورة ورفعها</button>
 <button id="retakeBtn">🔄 إعادة التصوير</button>
 
-<div id="status">جاري تشغيل الكاميرا...</div>
+<div id="status">
+جاري تشغيل الكاميرا...
+</div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
 
 const supabaseClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
 const params =
-    new URLSearchParams(
-        window.location.search
-    );
+new URLSearchParams(
+    window.location.search
+);
 
 const SESSION_ID =
-    params.get("session");
+params.get("session") || "default";
 
 const video =
-    document.getElementById("video");
+document.getElementById("video");
 
 const frame =
-    document.getElementById("frame");
+document.getElementById("frame");
 
 const captureBtn =
-    document.getElementById("captureBtn");
+document.getElementById("captureBtn");
 
 const useBtn =
-    document.getElementById("useBtn");
+document.getElementById("useBtn");
 
 const retakeBtn =
-    document.getElementById("retakeBtn");
+document.getElementById("retakeBtn");
+
+const plusBtn =
+document.getElementById("plusBtn");
+
+const minusBtn =
+document.getElementById("minusBtn");
 
 const statusDiv =
-    document.getElementById("status");
+document.getElementById("status");
 
 const previewCanvas =
-    document.getElementById("previewCanvas");
+document.getElementById("previewCanvas");
+
+const cameraBox =
+document.getElementById("cameraBox");
 
 let croppedBlob = null;
 let stream = null;
 
-async function startCamera() {
+let frameWidth = 150;
 
-    try {
+function updateFrameWidth(){
+
+    if(frameWidth < 80)
+        frameWidth = 80;
+
+    if(frameWidth > 350)
+        frameWidth = 350;
+
+    frame.style.width =
+    frameWidth + "px";
+
+    localStorage.setItem(
+        "frameWidth",
+        frameWidth
+    );
+}
+
+const savedWidth =
+parseInt(
+    localStorage.getItem("frameWidth")
+);
+
+if(savedWidth){
+    frameWidth = savedWidth;
+}
+
+updateFrameWidth();
+
+plusBtn.addEventListener(
+"click",
+()=>{
+    frameWidth += 20;
+    updateFrameWidth();
+});
+
+minusBtn.addEventListener(
+"click",
+()=>{
+    frameWidth -= 20;
+    updateFrameWidth();
+});
+
+async function startCamera(){
+
+    try{
 
         stream =
-            await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: {
-                        ideal: "environment"
-                    }
-                },
-                audio: false
-            });
+        await navigator.mediaDevices.getUserMedia({
+            video:{
+                facingMode:{
+                    ideal:"environment"
+                }
+            },
+            audio:false
+        });
 
         video.srcObject =
-            stream;
+        stream;
 
         statusDiv.innerHTML =
-            "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
+        "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
 
-    } catch (err) {
+    }
+    catch(err){
 
         console.error(err);
 
         statusDiv.innerHTML =
-            "❌ تعذر تشغيل الكاميرا";
+        "❌ تعذر تشغيل الكاميرا";
     }
 }
 
 captureBtn.addEventListener(
-    "click",
+"click",
+async()=>{
 
-    async () => {
+    if(!video.videoWidth){
 
-        if (!video.videoWidth) {
+        statusDiv.innerHTML =
+        "❌ الكاميرا لم تجهز بعد";
 
-            statusDiv.innerHTML =
-                "❌ الكاميرا لم تجهز بعد";
-
-            return;
-        }
-
-        const videoRect =
-            video.getBoundingClientRect();
-
-        const frameRect =
-            frame.getBoundingClientRect();
-
-        const scaleX =
-            video.videoWidth / videoRect.width;
-
-        const scaleY =
-            video.videoHeight / videoRect.height;
-
-        const cropX =
-            (frameRect.left - videoRect.left) * scaleX;
-
-        const cropY =
-            (frameRect.top - videoRect.top) * scaleY;
-
-        const cropW =
-            frameRect.width * scaleX;
-
-        const cropH =
-            frameRect.height * scaleY;
-
-        previewCanvas.width =
-            cropW;
-
-        previewCanvas.height =
-            cropH;
-
-        const ctx =
-            previewCanvas.getContext("2d");
-
-        ctx.drawImage(
-            video,
-            cropX,
-            cropY,
-            cropW,
-            cropH,
-            0,
-            0,
-            cropW,
-            cropH
-        );
-
-        previewCanvas.toBlob(
-            (blob) => {
-
-                croppedBlob =
-                    blob;
-
-                previewCanvas.style.display =
-                    "block";
-
-                document.getElementById("cameraBox")
-                .style.display =
-                    "none";
-
-                captureBtn.style.display =
-                    "none";
-
-                useBtn.style.display =
-                    "block";
-
-                retakeBtn.style.display =
-                    "block";
-
-                statusDiv.innerHTML =
-                    "راجع الصورة، ثم اضغط استخدام الصورة";
-            },
-            "image/jpeg",
-            0.95
-        );
+        return;
     }
-);
 
-retakeBtn.addEventListener(
-    "click",
+    const videoRect =
+    video.getBoundingClientRect();
 
-    () => {
+    const frameRect =
+    frame.getBoundingClientRect();
 
-        croppedBlob = null;
+    const scaleX =
+    video.videoWidth /
+    videoRect.width;
+
+    const scaleY =
+    video.videoHeight /
+    videoRect.height;
+
+    const cropX =
+    (frameRect.left -
+    videoRect.left) *
+    scaleX;
+
+    const cropY =
+    (frameRect.top -
+    videoRect.top) *
+    scaleY;
+
+    const cropW =
+    frameRect.width *
+    scaleX;
+
+    const cropH =
+    frameRect.height *
+    scaleY;
+
+    previewCanvas.width =
+    cropW;
+
+    previewCanvas.height =
+    cropH;
+
+    const ctx =
+    previewCanvas.getContext("2d");
+
+    ctx.drawImage(
+        video,
+        cropX,
+        cropY,
+        cropW,
+        cropH,
+        0,
+        0,
+        cropW,
+        cropH
+    );
+
+    previewCanvas.toBlob(
+    (blob)=>{
+
+        croppedBlob = blob;
 
         previewCanvas.style.display =
-            "none";
+        "block";
 
-        document.getElementById("cameraBox")
-        .style.display =
-            "block";
+        cameraBox.style.display =
+        "none";
 
         captureBtn.style.display =
-            "block";
+        "none";
 
         useBtn.style.display =
-            "none";
+        "block";
 
         retakeBtn.style.display =
-            "none";
+        "block";
+
+        plusBtn.style.display =
+        "none";
+
+        minusBtn.style.display =
+        "none";
 
         statusDiv.innerHTML =
-            "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
-    }
-);
+        "راجع الصورة ثم اضغط استخدام الصورة";
+
+    },
+    "image/jpeg",
+    0.95
+    );
+
+});
+
+retakeBtn.addEventListener(
+"click",
+()=>{
+
+    croppedBlob = null;
+
+    previewCanvas.style.display =
+    "none";
+
+    cameraBox.style.display =
+    "block";
+
+    captureBtn.style.display =
+    "block";
+
+    useBtn.style.display =
+    "none";
+
+    retakeBtn.style.display =
+    "none";
+
+    plusBtn.style.display =
+    "block";
+
+    minusBtn.style.display =
+    "block";
+
+    statusDiv.innerHTML =
+    "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
+
+});
 
 useBtn.addEventListener(
-    "click",
+"click",
+async()=>{
 
-    async () => {
-
-        if (!croppedBlob) {
-
-            statusDiv.innerHTML =
-                "❌ لا توجد صورة";
-
-            return;
-        }
+    if(!croppedBlob){
 
         statusDiv.innerHTML =
-            "⏳ جاري رفع الصورة...";
+        "❌ لا توجد صورة";
 
-        const fileName =
-            `${SESSION_ID}/${Date.now()}.jpg`;
-
-        const {
-            error
-        } = await supabaseClient
-        .storage
-        .from("uploads")
-        .upload(
-            fileName,
-            croppedBlob
-        );
-
-        if (error) {
-
-            console.error(error);
-
-            statusDiv.innerHTML =
-                "❌ فشل رفع الصورة";
-
-            return;
-        }
-
-        statusDiv.innerHTML =
-            "✅ تم رفع الصورة بنجاح";
+        return;
     }
-);
+
+    statusDiv.innerHTML =
+    "⏳ جاري رفع الصورة...";
+
+    const fileName =
+    `${SESSION_ID}/${Date.now()}.jpg`;
+
+    const { error } =
+    await supabaseClient
+    .storage
+    .from("uploads")
+    .upload(
+        fileName,
+        croppedBlob,
+        {
+            contentType:"image/jpeg"
+        }
+    );
+
+    if(error){
+
+        console.error(error);
+
+        statusDiv.innerHTML =
+        "❌ فشل رفع الصورة";
+
+        return;
+    }
+
+    statusDiv.innerHTML =
+    "✅ تم رفع الصورة بنجاح";
+
+});
 
 startCamera();
+
 </script>
 
 </body>
