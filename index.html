@@ -1,153 +1,177 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-<link rel="manifest" href="pwa-manifest.json">
-<meta name="theme-color" content="#2563eb">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>رفع كشف الدرجات</title>
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>
+راصد الدرجات
+</title>
+
+<link
+rel="manifest"
+href="pwa-manifest.json">
+
+<meta
+name="theme-color"
+content="#2563eb">
+
+<meta
+name="apple-mobile-web-app-capable"
+content="yes">
+
+<meta
+name="apple-mobile-web-app-status-bar-style"
+content="black-translucent">
+
+<meta
+name="apple-mobile-web-app-title"
+content="راصد">
+
+<link
+rel="apple-touch-icon"
+href="pwa/icon-192.png">
 
 <style>
 
-body{
-    margin:0;
-    font-family:Tahoma;
-    background:#0f172a;
-    color:white;
-    text-align:center;
+body {
+
+font-family: Tahoma;
+
+background: #f1f5f9;
+
+padding: 20px;
+
+text-align: center;
 }
 
-.box{
-    padding:12px;
+.box {
+
+background: white;
+
+border-radius: 20px;
+
+padding: 25px;
+
+max-width: 420px;
+
+margin: auto;
+
+box-shadow:
+0 4px 15px rgba(0,0,0,0.08);
 }
 
-h1{
-    font-size:22px;
-    margin:10px 0;
+h1 {
+
+color: #1e3a8a;
+
+margin-bottom: 20px;
 }
 
-.cameraBox{
-    position:relative;
-    width:100%;
-    max-width:430px;
-    margin:auto;
-    overflow:hidden;
-    border-radius:18px;
-    border:2px solid #334155;
-    background:black;
+input {
+
+width: 100%;
+
+box-sizing: border-box;
+
+padding: 14px;
+
+border-radius: 14px;
+
+border: 1px solid #cbd5e1;
+
+margin-bottom: 15px;
+
+font-size: 16px;
 }
 
-video{
-    width:100%;
-    display:block;
+button {
+
+width: 100%;
+
+padding: 15px;
+
+border: none;
+
+border-radius: 14px;
+
+background: linear-gradient(
+135deg,
+#2563eb,
+#1d4ed8
+);
+
+color: white;
+
+font-size: 18px;
+
+font-weight: bold;
+
+cursor: pointer;
+
+margin-top: 10px;
 }
 
-.frame{
-    position:absolute;
-    top:7%;
-    bottom:7%;
-    left:50%;
-    width:150px;
-    transform:translateX(-50%);
-    border:4px solid red;
-    border-radius:12px;
-    box-shadow:0 0 0 9999px rgba(0,0,0,0.35);
-    pointer-events:none;
+#status {
+
+margin-top: 18px;
+
+font-size: 18px;
+
+font-weight: bold;
 }
 
-.controls{
-    display:flex;
-    gap:10px;
-    max-width:430px;
-    margin:12px auto 0;
-}
+canvas {
 
-.controls button{
-    flex:1;
-}
+max-width: 100%;
 
-button{
-    width:100%;
-    max-width:430px;
-    padding:15px;
-    margin-top:12px;
-    border:none;
-    border-radius:14px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-}
+border: 2px solid #999;
 
-#plusBtn{
-    background:#2563eb;
-    color:white;
-}
+margin-top: 10px;
 
-#minusBtn{
-    background:#dc2626;
-    color:white;
-}
+touch-action: none;
 
-#captureBtn{
-    background:#16a34a;
-    color:white;
-}
-
-#useBtn{
-    background:#2563eb;
-    color:white;
-    display:none;
-}
-
-#retakeBtn{
-    background:#f59e0b;
-    color:white;
-    display:none;
-}
-
-#status{
-    margin-top:14px;
-    font-size:18px;
-    font-weight:bold;
-}
-
-#previewCanvas{
-    display:none;
-    width:100%;
-    max-width:430px;
-    margin-top:12px;
-    border-radius:18px;
-    border:2px solid #334155;
+border-radius: 12px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="box">
 
-<h1>📷 صوّر عمود الدرجات داخل الإطار</h1>
+<h1>
+📷 رفع كشف الدرجات
+</h1>
 
-<div class="cameraBox" id="cameraBox">
-    <video id="video" autoplay playsinline></video>
-    <div class="frame" id="frame"></div>
-</div>
+<input
+type="file"
+id="imageInput"
+accept="image/*"
+capture="environment">
 
-<canvas id="previewCanvas"></canvas>
+<canvas
+id="cropCanvas">
+</canvas>
 
-<div class="controls">
-    <button id="minusBtn">➖</button>
-    <button id="plusBtn">➕</button>
-</div>
+<button
+id="cropBtn">
+قص العمود
+</button>
 
-<button id="captureBtn">📷 تصوير</button>
-<button id="useBtn">✅ استخدام الصورة ورفعها</button>
-<button id="retakeBtn">🔄 إعادة التصوير</button>
+<button id="uploadBtn">
+🚀 رفع الصورة
+</button>
 
 <div id="status">
-جاري تشغيل الكاميرا...
+جاهز
 </div>
 
 </div>
@@ -156,311 +180,309 @@ button{
 
 <script>
 
+const canvas =
+document.getElementById(
+"cropCanvas"
+);
+
+const ctx =
+canvas.getContext("2d");
+
+const cropBtn =
+document.getElementById(
+"cropBtn"
+);
+
+let img =
+new Image();
+
+let startX = 0;
+let startY = 0;
+
+let endX = 0;
+let endY = 0;
+
+let isDrawing = false;
+
 const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
+
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
 
 const supabaseClient =
 supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+SUPABASE_URL,
+SUPABASE_KEY
 );
 
+// قراءة Session من الرابط
 const params =
 new URLSearchParams(
-    window.location.search
+window.location.search
 );
 
 const SESSION_ID =
-params.get("session") || "default";
+params.get("session");
 
-const video =
-document.getElementById("video");
+console.log(SESSION_ID);
 
-const frame =
-document.getElementById("frame");
-
-const captureBtn =
-document.getElementById("captureBtn");
-
-const useBtn =
-document.getElementById("useBtn");
-
-const retakeBtn =
-document.getElementById("retakeBtn");
-
-const plusBtn =
-document.getElementById("plusBtn");
-
-const minusBtn =
-document.getElementById("minusBtn");
-
-const statusDiv =
-document.getElementById("status");
-
-const previewCanvas =
-document.getElementById("previewCanvas");
-
-const cameraBox =
-document.getElementById("cameraBox");
-
-let croppedBlob = null;
-let stream = null;
-
-let frameWidth = 150;
-
-function updateFrameWidth(){
-
-    if(frameWidth < 40)
-        frameWidth = 40;
-
-    if(frameWidth > 350)
-        frameWidth = 350;
-
-    frame.style.width =
-    frameWidth + "px";
-
-    localStorage.setItem(
-        "frameWidth",
-        frameWidth
-    );
-}
-
-const savedWidth =
-parseInt(
-    localStorage.getItem("frameWidth")
+const uploadBtn =
+document.getElementById(
+"uploadBtn"
 );
 
-if(savedWidth){
-    frameWidth = savedWidth;
+const imageInput =
+document.getElementById(
+"imageInput"
+);
+
+const statusDiv =
+document.getElementById(
+"status"
+);
+
+// تحميل الصورة
+imageInput.addEventListener(
+"change",
+
+() => {
+
+const file =
+imageInput.files[0];
+
+if (!file)
+return;
+
+const reader =
+new FileReader();
+
+reader.onload =
+(e) => {
+
+img.onload = () => {
+
+canvas.width =
+img.width;
+
+canvas.height =
+img.height;
+
+ctx.drawImage(
+img,
+0,
+0
+);
+};
+
+img.src =
+e.target.result;
+};
+
+reader.readAsDataURL(
+file
+);
+
+}
+);
+
+// رفع الصورة
+uploadBtn.addEventListener(
+"click",
+
+async () => {
+
+const file =
+imageInput.files[0];
+
+if (!file) {
+
+alert("اختر صورة");
+
+return;
 }
 
-updateFrameWidth();
+statusDiv.innerHTML =
+"⏳ جاري رفع الصورة...";
 
-plusBtn.addEventListener(
-"click",
-()=>{
-    frameWidth += 20;
-    updateFrameWidth();
-});
+const fileName =
+`${SESSION_ID}/${Date.now()}.jpg`;
 
-minusBtn.addEventListener(
-"click",
-()=>{
-    frameWidth -= 20;
-    updateFrameWidth();
-});
+const {
+data,
+error
+} = await supabaseClient
+.storage
+.from("uploads")
+.upload(
+fileName,
+file
+);
 
-async function startCamera(){
+if (error) {
 
-    try{
+console.log(error);
 
-        stream =
-        await navigator.mediaDevices.getUserMedia({
-            video:{
-                facingMode:{
-                    ideal:"environment"
-                }
-            },
-            audio:false
-        });
+statusDiv.innerHTML =
+"❌ فشل رفع الصورة";
 
-        video.srcObject =
-        stream;
-
-        statusDiv.innerHTML =
-        "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
-
-    }
-    catch(err){
-
-        console.error(err);
-
-        statusDiv.innerHTML =
-        "❌ تعذر تشغيل الكاميرا";
-    }
+return;
 }
 
-captureBtn.addEventListener(
+statusDiv.innerHTML =
+"✅ تم رفع الصورة بنجاح";
+
+}
+);
+
+// بداية السحب
+canvas.addEventListener(
+"pointerdown",
+
+(e) => {
+
+isDrawing = true;
+
+startX = e.offsetX;
+startY = e.offsetY;
+}
+);
+
+// أثناء السحب
+canvas.addEventListener(
+"pointermove",
+
+(e) => {
+
+if (!isDrawing)
+return;
+
+endX = e.offsetX;
+endY = e.offsetY;
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+ctx.drawImage(
+img,
+0,
+0
+);
+
+ctx.strokeStyle =
+"red";
+
+ctx.lineWidth = 3;
+
+ctx.strokeRect(
+startX,
+startY,
+endX - startX,
+endY - startY
+);
+}
+);
+
+// نهاية السحب
+canvas.addEventListener(
+"pointerup",
+
+() => {
+
+isDrawing = false;
+}
+);
+
+// قص الصورة
+cropBtn.addEventListener(
 "click",
-async()=>{
 
-    if(!video.videoWidth){
+() => {
 
-        statusDiv.innerHTML =
-        "❌ الكاميرا لم تجهز بعد";
+const width =
+endX - startX;
 
-        return;
-    }
+const height =
+endY - startY;
 
-    const videoRect =
-    video.getBoundingClientRect();
+const tempCanvas =
+document.createElement(
+"canvas"
+);
 
-    const frameRect =
-    frame.getBoundingClientRect();
+tempCanvas.width =
+width;
 
-    const scaleX =
-    video.videoWidth /
-    videoRect.width;
+tempCanvas.height =
+height;
 
-    const scaleY =
-    video.videoHeight /
-    videoRect.height;
+const tempCtx =
+tempCanvas.getContext(
+"2d"
+);
 
-    const cropX =
-    (frameRect.left -
-    videoRect.left) *
-    scaleX;
+tempCtx.drawImage(
+canvas,
+startX,
+startY,
+width,
+height,
+0,
+0,
+width,
+height
+);
 
-    const cropY =
-    (frameRect.top -
-    videoRect.top) *
-    scaleY;
+canvas.width =
+width;
 
-    const cropW =
-    frameRect.width *
-    scaleX;
+canvas.height =
+height;
 
-    const cropH =
-    frameRect.height *
-    scaleY;
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
 
-    previewCanvas.width =
-    cropW;
+ctx.drawImage(
+tempCanvas,
+0,
+0
+);
 
-    previewCanvas.height =
-    cropH;
+img.src =
+tempCanvas.toDataURL();
 
-    const ctx =
-    previewCanvas.getContext("2d");
+}
+);
 
-    ctx.drawImage(
-        video,
-        cropX,
-        cropY,
-        cropW,
-        cropH,
-        0,
-        0,
-        cropW,
-        cropH
-    );
+// تسجيل Service Worker
+if (
+"serviceWorker"
+in navigator
+) {
 
-    previewCanvas.toBlob(
-    (blob)=>{
+navigator
+.serviceWorker
+.register(
+"./sw.js"
+)
+.then(() => {
 
-        croppedBlob = blob;
-
-        previewCanvas.style.display =
-        "block";
-
-        cameraBox.style.display =
-        "none";
-
-        captureBtn.style.display =
-        "none";
-
-        useBtn.style.display =
-        "block";
-
-        retakeBtn.style.display =
-        "block";
-
-        plusBtn.style.display =
-        "none";
-
-        minusBtn.style.display =
-        "none";
-
-        statusDiv.innerHTML =
-        "راجع الصورة ثم اضغط استخدام الصورة";
-
-    },
-    "image/jpeg",
-    0.95
-    );
+console.log(
+"SW Registered"
+);
 
 });
 
-retakeBtn.addEventListener(
-"click",
-()=>{
-
-    croppedBlob = null;
-
-    previewCanvas.style.display =
-    "none";
-
-    cameraBox.style.display =
-    "block";
-
-    captureBtn.style.display =
-    "block";
-
-    useBtn.style.display =
-    "none";
-
-    retakeBtn.style.display =
-    "none";
-
-    plusBtn.style.display =
-    "block";
-
-    minusBtn.style.display =
-    "block";
-
-    statusDiv.innerHTML =
-    "ضع عمود الدرجات داخل الإطار ثم اضغط تصوير";
-
-});
-
-useBtn.addEventListener(
-"click",
-async()=>{
-
-    if(!croppedBlob){
-
-        statusDiv.innerHTML =
-        "❌ لا توجد صورة";
-
-        return;
-    }
-
-    statusDiv.innerHTML =
-    "⏳ جاري رفع الصورة...";
-
-    const fileName =
-    `${SESSION_ID}/${Date.now()}.jpg`;
-
-    const { error } =
-    await supabaseClient
-    .storage
-    .from("uploads")
-    .upload(
-        fileName,
-        croppedBlob,
-        {
-            contentType:"image/jpeg"
-        }
-    );
-
-    if(error){
-
-        console.error(error);
-
-        statusDiv.innerHTML =
-        "❌ فشل رفع الصورة";
-
-        return;
-    }
-
-    statusDiv.innerHTML =
-    "✅ تم رفع الصورة بنجاح";
-
-});
-
-startCamera();
+}
 
 </script>
 
 </body>
+
 </html>
