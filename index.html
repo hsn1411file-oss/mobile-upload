@@ -1,520 +1,424 @@
+
+# mobile-upload.html
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<link rel="manifest" href="pwa-manifest.json">
+    <title>
+        رفع كشف الدرجات
+    </title>
 
-<meta
-name="theme-color"
-content="#2563eb">
+    <style>
 
-<title>
-مرصود
-</title>
+        body {
 
-<style>
+            font-family: Tahoma;
 
-:root{
+            background: #f1f5f9;
 
-    --frame-width:150px;
+            padding: 20px;
 
-}
+            text-align: center;
+        }
 
-body{
+        .box {
 
-    margin:0;
-    background:#0f172a;
-    color:white;
-    font-family:Tahoma;
-    text-align:center;
+            background: white;
 
-}
+            border-radius: 20px;
 
-.container{
+            padding: 25px;
 
-    padding:15px;
+            max-width: 420px;
 
-}
+            margin: auto;
 
-h1{
+            box-shadow:
+                0 4px 15px rgba(0,0,0,0.08);
+        }
 
-    margin-bottom:15px;
+        h1 {
 
-}
+            color: #1e3a8a;
 
-#videoContainer{
+            margin-bottom: 20px;
+        }
 
-    position:relative;
-    width:100%;
-    max-width:500px;
-    margin:auto;
-    border-radius:20px;
-    overflow:hidden;
-    background:black;
+        input {
 
-}
+            width: 100%;
 
-video{
+            box-sizing: border-box;
 
-    width:100%;
-    display:block;
+            padding: 14px;
 
-}
+            border-radius: 14px;
 
-#frame{
+            border: 1px solid #cbd5e1;
 
-    position:absolute;
-    top:0;
-    bottom:0;
-    left:50%;
-    transform:translateX(-50%);
-    width:var(--frame-width);
-    border:4px solid red;
-    border-radius:12px;
-    box-sizing:border-box;
-    pointer-events:none;
+            margin-bottom: 15px;
 
-}
+            font-size: 16px;
+        }
 
-.controls{
+        button {
 
-    margin-top:15px;
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    flex-wrap:wrap;
+            width: 100%;
 
-}
+            padding: 15px;
 
-button{
+            border: none;
 
-    border:none;
-    border-radius:12px;
-    padding:14px 20px;
-    font-size:18px;
-    cursor:pointer;
+            border-radius: 14px;
 
-}
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #1d4ed8
+            );
 
-#framePlus,
-#frameMinus{
+            color: white;
 
-    width:65px;
-    background:#1e293b;
-    color:white;
+            font-size: 18px;
 
-}
+            font-weight: bold;
 
-#captureBtn{
+            cursor: pointer;
+        }
 
-    background:#2563eb;
-    color:white;
-    min-width:200px;
+        #status {
 
-}
+            margin-top: 18px;
 
-#useBtn{
+            font-size: 18px;
 
-    background:#16a34a;
-    color:white;
+            font-weight: bold;
+        }
 
-}
-
-#retryBtn{
-
-    background:#dc2626;
-    color:white;
-
-}
-
-#preview{
-
-    margin-top:20px;
-    max-width:100%;
-    border-radius:15px;
-    display:none;
-
-}
-
-#useBtn,
-#retryBtn{
-
-    display:none;
-
-}
-
-#status{
-
-    margin-top:15px;
-    font-size:18px;
-
-}
-
-canvas{
-
-    display:none;
-
-}
-
-</style>
+    </style>
 
 </head>
 
 <body>
 
-<div class="container">
+    <div class="box">
 
-<h1>
-📸 مرصود
-</h1>
+        <h1>
+            📷 رفع كشف الدرجات
+        </h1>
 
-<div id="videoContainer">
+        <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+            capture="environment">
+            <canvas
+            id="cropCanvas"
+            style="
+            max-width:100%;
+            border:2px solid #999;
+            margin-top:10px;
+            touch-action:none;
+            "
+            ></canvas>
+            
+            <button
+            id="cropBtn"
+            style="
+            margin-top:10px;
+            padding:10px;
+            font-size:18px;
+            "
+            >
+            قص العمود
+            </button>    
 
-<video
-id="video"
-autoplay
-playsinline>
-</video>
+        <button id="uploadBtn">
+            🚀 رفع الصورة
+        </button>
 
-<div id="frame"></div>
+        <div id="status">
+            جاهز
+        </div>
 
-</div>
+    </div>
 
-<div class="controls">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<button id="frameMinus">
-➖
-</button>
-
-<button id="framePlus">
-➕
-</button>
-
-</div>
-
-<div class="controls">
-
-<button id="captureBtn">
-📸 تصوير
-</button>
-
-</div>
-
-<img id="preview">
-
-<div class="controls">
-
-<button id="useBtn">
-✅ استخدام الصورة
-</button>
-
-<button id="retryBtn">
-🔄 إعادة التصوير
-</button>
-
-</div>
-
-<div id="status"></div>
-
-<canvas id="canvas"></canvas>
-
-</div>
-
-<script>
-
-const video =
-document.getElementById(
-    "video"
-);
+    <script>
 
 const canvas =
-document.getElementById(
-    "canvas"
-);
-
-const preview =
-document.getElementById(
-    "preview"
-);
-
-const captureBtn =
-document.getElementById(
-    "captureBtn"
-);
-
-const useBtn =
-document.getElementById(
-    "useBtn"
-);
-
-const retryBtn =
-document.getElementById(
-    "retryBtn"
-);
-
-const framePlus =
-document.getElementById(
-    "framePlus"
-);
-
-const frameMinus =
-document.getElementById(
-    "frameMinus"
-);
-
-const statusText =
-document.getElementById(
-    "status"
-);
-
-let frameWidth = 150;
-
-document.documentElement
-.style.setProperty(
-    "--frame-width",
-    frameWidth + "px"
-);
-
-let croppedBlob = null;
-
-navigator.mediaDevices
-.getUserMedia({
-
-    video:{
-        facingMode:"environment"
-    }
-
-})
-.then(stream => {
-
-    video.srcObject =
-        stream;
-
-})
-.catch(error => {
-
-    console.error(error);
-
-    alert(
-        "تعذر تشغيل الكاميرا"
+    document.getElementById(
+        "cropCanvas"
     );
 
-});
+const ctx =
+    canvas.getContext("2d");
 
-framePlus.addEventListener(
-    "click",
+const cropBtn =
+    document.getElementById(
+        "cropBtn"
+    );
 
-    () => {
+let img =
+    new Image();
 
-        frameWidth += 20;
+let startX = 0;
+let startY = 0;
 
-        if(frameWidth > 350)
-            frameWidth = 350;
+let endX = 0;
+let endY = 0;
 
-        document.documentElement
-        .style.setProperty(
-            "--frame-width",
-            frameWidth + "px"
-        );
+let isDrawing = false;
 
-    }
-);
+        const SUPABASE_URL = "https://kztwzelltnomrbsdmukt.supabase.co";
 
-frameMinus.addEventListener(
-    "click",
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6dHd6ZWxsdG5vbXJic2RtdWt0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NTE1NTMsImV4cCI6MjA5NDUyNzU1M30.mPizyA4g3z8gnYYRMsHLkIAABiw0T5fjWmC1o7WgFQc";
 
-    () => {
-
-        frameWidth -= 20;
-
-        if(frameWidth < 80)
-            frameWidth = 80;
-
-        document.documentElement
-        .style.setProperty(
-            "--frame-width",
-            frameWidth + "px"
-        );
-
-    }
-);
-
-captureBtn.addEventListener(
-    "click",
-
-    () => {
-
-        const ctx =
-            canvas.getContext("2d");
-
-        const vw =
-            video.videoWidth;
-
-        const vh =
-            video.videoHeight;
-
-        const displayWidth =
-            video.clientWidth;
-
-        const scale =
-            vw / displayWidth;
-
-        const cropWidth =
-            frameWidth * scale;
-
-        const cropX =
-            (vw / 2) -
-            (cropWidth / 2);
-
-        canvas.width =
-            cropWidth;
-
-        canvas.height =
-            vh;
-
-        ctx.drawImage(
-
-            video,
-
-            cropX,
-            0,
-
-            cropWidth,
-            vh,
-
-            0,
-            0,
-
-            cropWidth,
-            vh
-
-        );
-
-        canvas.toBlob(blob => {
-
-            croppedBlob =
-                blob;
-
-            preview.src =
-                URL.createObjectURL(
-                    blob
-                );
-
-            preview.style.display =
-                "block";
-
-            useBtn.style.display =
-                "inline-block";
-
-            retryBtn.style.display =
-                "inline-block";
-
-            video.style.display =
-                "none";
-
-            document.getElementById(
-                "frame"
-            ).style.display =
-                "none";
-
-        },
-        "image/jpeg",
-        0.95);
-
-    }
-);
-
-retryBtn.addEventListener(
-    "click",
-
-    () => {
-
-        preview.style.display =
-            "none";
-
-        useBtn.style.display =
-            "none";
-
-        retryBtn.style.display =
-            "none";
-
-        video.style.display =
-            "block";
-
-        document.getElementById(
-            "frame"
-        ).style.display =
-            "block";
-
-    }
-);
-
-useBtn.addEventListener(
-    "click",
-
-    async () => {
-
-        try{
-
-            statusText.innerHTML =
-                "⏳ جاري الرفع...";
-
-            const formData =
-                new FormData();
-
-            const fileName =
-                Date.now() + ".jpg";
-
-            formData.append(
-                "file",
-                croppedBlob,
-                fileName
+        const supabaseClient =
+            supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_KEY
             );
 
-            const response =
-                await fetch(
-                    "https://kztwzelltnomrbsdmukt.supabase.co/functions/v1/analyze-image",
-                    {
-                        method:"POST",
-                        body:formData
-                    }
+            // قراءة Session من الرابط
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const SESSION_ID =
+            params.get("session");
+            
+
+        console.log(SESSION_ID);
+
+
+        const uploadBtn =
+            document.getElementById(
+                "uploadBtn"
+            );
+
+        const imageInput =
+            document.getElementById(
+                "imageInput"
+            );
+
+        const statusDiv =
+            document.getElementById(
+                "status"
+            );
+
+        uploadBtn.addEventListener(
+            "click",
+
+            async () => {
+
+                const file =
+                    imageInput.files[0];
+                    const reader =
+    new FileReader();
+
+reader.onload =
+    (e) => {
+
+        img.onload = () => {
+
+            canvas.width =
+                img.width;
+
+            canvas.height =
+                img.height;
+
+            ctx.drawImage(
+                img,
+                0,
+                0
+            );
+        };
+
+        img.src =
+            e.target.result;
+    };
+
+reader.readAsDataURL(
+    file
+);
+
+                if (!file) {
+
+                    alert("اختر صورة");
+
+                    return;
+                }
+
+                statusDiv.innerHTML =
+                    "⏳ جاري رفع الصورة...";
+
+                const fileName =
+                    `${SESSION_ID}/${Date.now()}.jpg`;
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient
+                .storage
+                .from("uploads")
+                .upload(
+                    fileName,
+                    file
                 );
 
-            if(!response.ok){
+                if (error) {
 
-                throw new Error(
-                    await response.text()
-                );
+                    console.log(error);
 
+                    statusDiv.innerHTML =
+                        "❌ فشل رفع الصورة";
+
+                    return;
+                }
+
+                statusDiv.innerHTML =
+                    "✅ تم رفع الصورة بنجاح";
             }
+        );
+    // بداية السحب
+// بداية السحب
+canvas.addEventListener(
+    "pointerdown",
 
-            const result =
-                await response.json();
+    (e) => {
 
-            console.log(result);
+        isDrawing = true;
 
-            statusText.innerHTML =
-                "✅ تم الرفع بنجاح";
-
-        }
-        catch(error){
-
-            console.error(error);
-
-            statusText.innerHTML =
-                "❌ فشل الرفع";
-
-        }
-
+        startX = e.offsetX;
+        startY = e.offsetY;
     }
 );
 
+// أثناء السحب
+canvas.addEventListener(
+    "pointermove",
+
+    (e) => {
+
+        if (!isDrawing)
+            return;
+
+        endX = e.offsetX;
+        endY = e.offsetY;
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        ctx.drawImage(
+            img,
+            0,
+            0
+        );
+
+        ctx.strokeStyle =
+            "red";
+
+        ctx.lineWidth = 3;
+
+        ctx.strokeRect(
+            startX,
+            startY,
+            endX - startX,
+            endY - startY
+        );
+    }
+);
+
+// نهاية السحب
+canvas.addEventListener(
+    "pointerup",
+
+    () => {
+
+        isDrawing = false;
+    }
+);
+
+// قص الصورة
+cropBtn.addEventListener(
+    "click",
+
+    () => {
+
+        const width =
+            endX - startX;
+
+        const height =
+            endY - startY;
+
+        const tempCanvas =
+            document.createElement(
+                "canvas"
+            );
+
+        tempCanvas.width =
+            width;
+
+        tempCanvas.height =
+            height;
+
+        const tempCtx =
+            tempCanvas.getContext(
+                "2d"
+            );
+
+        tempCtx.drawImage(
+            canvas,
+            startX,
+            startY,
+            width,
+            height,
+            0,
+            0,
+            width,
+            height
+        );
+
+        canvas.width =
+    width;
+
+canvas.height =
+    height;
+
+ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+);
+
+ctx.drawImage(
+    tempCanvas,
+    0,
+    0
+);
+
+img.src =
+    tempCanvas.toDataURL();
+            
+    }
+);
 if (
     "serviceWorker"
     in navigator
@@ -534,8 +438,10 @@ if (
     });
 
 }
-
-</script>
+    </script>
 
 </body>
+
 </html>
+```
+
